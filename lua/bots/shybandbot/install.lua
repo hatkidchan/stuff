@@ -10,7 +10,7 @@ local files = {
 }
 
 local function download(url, name)
-  fd = open(name, "w")
+  fd = io.open(name, "w")
   rq = inet.request(url)
   io.stdout:write("Loading " .. name " ... ")
   while true do
