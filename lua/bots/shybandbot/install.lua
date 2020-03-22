@@ -12,7 +12,7 @@ local files = {
 local function download(url, name)
   fd = io.open(name, "w")
   rq = inet.request(url)
-  io.stdout:write("Loading " .. name " ... ")
+  io.stdout:write("Loading " .. name .. " ... ")
   while true do
     chunk = rq.read(math.huge)
     if chunk then
