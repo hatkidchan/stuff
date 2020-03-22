@@ -53,7 +53,7 @@ local function handle_chat_message(addr, sender, message)
 end
 
 pc.beep(2000, 0.1)
-l_p('\x1b[31m[INF] \x1b[32mBot init OK\n')
+utils.printf('\x1b[31m[INF] \x1b[32mBot init OK\n')
 while true do
   local e = table.pack(ev.pull())
   etype = table.remove(e, 1)
@@ -73,5 +73,5 @@ while true do
   end
 end
 pc.beep(1000, 0.1)
-l_p('\x1b[31m[INF] \x1b[33mBot stopped\n')
+utils.printf('\x1b[31m[INF] \x1b[33mBot stopped\n')
 
