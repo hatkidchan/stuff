@@ -1,5 +1,6 @@
 local utils = {}
-local unicode = require("unicode")
+local unicode = require('unicode')
+local gpu = require('component').gpu
 
 local cmap = {
   [31] = {0, 0xff0000},
