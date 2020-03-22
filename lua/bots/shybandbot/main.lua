@@ -64,7 +64,11 @@ while true do
     sender = table.remove(e, 1)
     message = table.remove(e, 1)
     if IGNORE_GL and message:sub(0, 1) == '!' then message = message:sub(2) end
-    handle_chat_message(addr, sender, message)  -- TODO: implement dublicates detection
+    local succ, resp = pcall(handle_chat_message, addr, sender, message)  -- TODO: implement dublicates detection
+    if not succ then
+      box.setName('ERROR')
+      box.say(tostring(resp), math.huge)
+    end
   else
     local succ, result = pcall(handle_event, etype, addr, e)
     if not succ then
