@@ -43,18 +43,26 @@ local function handle_chat_message(addr, sender, message)
     return
   end
   if not result then return end
-  box.setName(BOX_NAME)
+  local cbox = com.proxy(addr)
+  cbox.setName(BOX_NAME)
   if type(result) ~= 'table' then
     result = { tostring(result) }
   end
   for _, v in ipairs(result) do
     utils.printf('\x1b[31m[REP] \x1b[35m%s \x1b[33m-> \x1b[35m%s\n', addr:sub(0, 8), v)
-    box.say(v, math.huge)
+    cbox.say(v, math.huge)
   end
 end
 
-pc.beep(2000, 0.1)
+for addr, _ in com.list('chat_box') do
+  local cbox = com.proxy(addr)
+  cbox.setName(BOX_NAME)
+  local dist = cbox.setDistance(math.huge)
+  utils.printf('\x1b[31m[INF] \x1b[32mBox \x1b[35m%s\x1b[32m initialized with name \x1b[34m%s \x1b[32m and distance \x1b[33m%d', addr:sub(0, 8), BOX_NAME, dist)
+  pc.beep(1500, 0.01)
+end
 utils.printf('\x1b[31m[INF] \x1b[32mBot init OK\n')
+pc.beep(2000, 0.1)
 while true do
   local e = table.pack(ev.pull())
   etype = table.remove(e, 1)
