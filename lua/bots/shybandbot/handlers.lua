@@ -107,6 +107,38 @@ function handlers.command(addr, sender, cmd, params)
     x, y, z = math.floor(x), math.floor(y), math.floor(z)
     local blk = params[1] or 'grass'
     me.getWorld().setBlocks(x - 2, y - 1, z - 2, x + 2, y - 1, z + 2, blk, 0, '')
+  elseif cmd == 'road' then
+    if not privs.is_priv(sender) then return 'Not allowed' end
+    local me = dbg.getPlayer(sender)
+    local w = me.getWorld()
+    local x, y, z = me.getPosition()
+    local dir = table.remove(params, 1)
+    local d = tonumber(table.remove(params, 1) or 1)
+    if dir == 'x' then
+      w.setBlocks(x, y - 2, z + 2, x + d, y - 2, z + 2, 'concrete', 15, '')
+      w.setBlocks(x, y - 2, z - 1, x + d, y - 2, z + 1, 'sea_lantern', 0, '')
+      w.setBlocks(x, y - 2, z + 0, x + d, y - 2, z + 0, 'redstone_block', 0, '')
+
+      w.setBlocks(x, y - 1, z - 2, x + d, y + 2, z + 2, 'concrete', 7, '')
+      w.setBlocks(x, y + 2, z - 2, x + d, y + 2, z - 2, 'concrete', 15, '')
+      w.setBlocks(x, y + 2, z + 2, x + d, y + 2, z + 2, 'concrete', 15, '')
+
+      w.setBlocks(x, y - 1, z - 1, x + d, y + 1, z + 1, 'air', 0, '')
+      w.setBlocks(x, y - 1, z + 0, x + d, y - 1, z + 0, 'golden_rail', 0, '')
+    elseif dir == 'z' then
+      w.setBlocks(x - 2, y - 2, z, x + 2, y - 2, z + d, 'concrete', 15, '')
+      w.setBlocks(x - 1, y - 2, z, x + 1, y - 2, z + d, 'sea_lantern', 0, '')
+      w.setBlocks(x - 0, y - 2, z, x - 0, y - 2, z + d, 'redstone_block', 0, '')
+
+      w.setBlocks(x - 2, y - 1, z, x + 2, y + 2, z + d, 'concrete', 7, '')
+      w.setBlocks(x - 2, y + 2, z, x - 2, y + 2, z + d, 'concrete', 15, '')
+      w.setBlocks(x + 2, y + 2, z, x + 2, y + 2, z + d, 'concrete', 15, '')
+      
+      w.setBlocks(x - 1, y - 1, z, x + 1, y + 1, z + d, 'ait', 0, '')
+      w.setBlocks(x - 0, y - 1, z, x - 0, y - 1, z + d, 'golden_rail', 0, '')
+    else
+      return 'unsupported direction'
+    end
   else
     -- invalid command
     return nil
