@@ -102,4 +102,11 @@ function utils.chat_trace(err)
   end
 end
 
+function utils.init_box(addr)
+  local cbox = com.proxy(addr)
+  cbox.setName(BOX_NAME)
+  local dist = cbox.setDistance(math.huge)
+  utils.printf('\x1b[31m[INF] \x1b[32mBox \x1b[35m%s\x1b[32m initialized with name \x1b[34m%s \x1b[32mand distance \x1b[33m%d\n', addr:sub(0, 8), BOX_NAME, dist)
+end
+
 return utils

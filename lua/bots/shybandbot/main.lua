@@ -16,6 +16,9 @@ IGNORE_GL = true
 local function handle_event(etype, addr, params)
   if etype == 'component_added' then
     utils.printf('\x1b[31m[COM] \x1b[32m+ %s\x1b[33m -> \x1b[34m%s\n', addr, params[1])
+    if params[1] == 'chat_box' then
+      utils.init_box(addr)
+    end
     pc.beep(2000, 0.01)
   elseif etype == 'component_removed' then
     utils.printf('\x1b[31m[COM] \x1b[31m- %s\x1b[33m -> \x1b[34m%s\n', addr, params[1])
@@ -55,10 +58,7 @@ local function handle_chat_message(addr, sender, message)
 end
 
 for addr, _ in com.list('chat_box') do
-  local cbox = com.proxy(addr)
-  cbox.setName(BOX_NAME)
-  local dist = cbox.setDistance(math.huge)
-  utils.printf('\x1b[31m[INF] \x1b[32mBox \x1b[35m%s\x1b[32m initialized with name \x1b[34m%s \x1b[32mand distance \x1b[33m%d\n', addr:sub(0, 8), BOX_NAME, dist)
+  utils.init_box(addr)
   pc.beep(1500, 0.01)
 end
 utils.printf('\x1b[31m[INF] \x1b[32mBot init OK\n')
