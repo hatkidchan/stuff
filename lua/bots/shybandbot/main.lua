@@ -29,7 +29,7 @@ local function handle_chat_message(addr, sender, message)
     local params = utils.ssplit(message:sub(2), ' ')
     local command = table.remove(params, 1)
     params_s = table.concat(params, ' ')
-    utils.printf('\x1b[31m[CMD] \x1b[35m%s\x1b[33m%\x1b[32m%s\x1b[33m: \x1b[35m%s \x1b[34m%s\n', addr:sub(0, 8), sender, command, params_s)
+    utils.printf('\x1b[31m[CMD] \x1b[35m%s\x1b[33m%%\x1b[32m%s\x1b[33m: \x1b[35m%s \x1b[34m%s\n', addr:sub(0, 8), sender, command, params_s)
     succ, result = pcall(handlers.command, addr, sender, command, params)
   else
     succ, result = pcall(handlers.message, addr, sender, message)
