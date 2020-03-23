@@ -3,7 +3,9 @@ local privs = require('privileges')
 local com = require('component')
 local dbg = com.debug
 
-local function command(addr, sender, cmd, params)
+local handlers = {}
+
+function handlers.command(addr, sender, cmd, params)
   if cmd == 'help' then
     return {
       'help - show this help',
@@ -111,7 +113,7 @@ local function command(addr, sender, cmd, params)
   end
 end
 
-local function message(addr, sender, text)
+function handlers.message(addr, sender, text)
   if text == 'ayy' then
     return 'lmao'
   elseif text == 'f' then
@@ -126,3 +128,8 @@ local function message(addr, sender, text)
   end
 end
 
+function handlers.event(etype, addr, params)
+
+end
+
+return handlers

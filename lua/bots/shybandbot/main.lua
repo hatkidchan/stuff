@@ -19,6 +19,7 @@ local function handle_event(etype, addr, params)
     utils.printf('\x1b[31m[COM] \x1b[31m- %s\x1b[33m -> \x1b[34m%s\n', addr, params[1])
     pc.beep(1000, 0.01)
   end
+  handlers.event(etype, addr, params)
 end
 
 local function handle_chat_message(addr, sender, message)
