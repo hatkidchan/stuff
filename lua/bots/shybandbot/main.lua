@@ -1,6 +1,8 @@
 local com = require('component')
 local pc = require("computer")
 local ev = require('event')
+package.loaded.handlers = nil
+package.loaded.utils = nil
 local utils = require('utils')
 local handlers = require('handlers')
 local box = com.getPrimary('chat_box')
