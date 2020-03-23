@@ -66,6 +66,7 @@ while true do
     if IGNORE_GL and message:sub(0, 1) == '!' then message = message:sub(2) end
     local succ, resp = pcall(handle_chat_message, addr, sender, message)  -- TODO: implement dublicates detection
     if not succ then
+      local box = com.proxy(addr)
       box.setName('ERROR')
       box.say(tostring(resp), math.huge)
     end
