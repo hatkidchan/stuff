@@ -100,7 +100,7 @@ while true do
       modem.broadcast(port, table.unpack(e))
     else
       packets.net = packets.net + 1
-      tunnel.broadcast(port, table.unpack(e))
+      tunnel.send(port, table.unpack(e))
     end
     printf('\x1b[35m> sender: \x1b[34m%s\x1b[33m:\x1b[36m%d\n', sender, port)
     for i, item in ipairs(e) do
