@@ -101,7 +101,7 @@ function handlers.command(addr, sender, cmd, params)
     com.modem.broadcast(1234, 'setled', rgb)
     return 'Changing color to ' .. rgb
   elseif cmd == 'fill' then
-    if not privs.is_priv(sender) then return end
+    if not privs.is_priv(sender) then return 'Not allowed' end
     local me = dbg.getPlayer(sender)
     local x, y, z = me.getPosition()
     x, y, z = math.floor(x), math.floor(y), math.floor(z)

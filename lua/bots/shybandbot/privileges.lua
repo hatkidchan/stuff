@@ -23,10 +23,12 @@ function privs.remove_admin(name)
   for i, obj in ipairs(ops) do
     if obj == name then table.remove(ops, i) end
   end
+  privs.flush_privileges()
 end
 
 function privs.add_admin(name)
   table.insert(ops, name)
+  privs.flush_privileges()
 end
 
 function privs.is_priv(name)
@@ -34,5 +36,7 @@ function privs.is_priv(name)
     if obj == name then return true end
   end
 end
+
+privs.reload_privileges()
 
 return privs
