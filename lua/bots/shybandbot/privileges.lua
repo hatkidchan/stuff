@@ -5,8 +5,9 @@ function privs.reload_privileges()
   local fd = io.open('ops.txt', 'r')
   ops = {}
   while true do
-    local line = fd:readLine():match('[^\n]+')
-    table.insert(ops, line)
+    local line = fd:readLine()
+    if not line then break end
+    table.insert(ops, line:match('[^\n]+'))
   end
   return ops
 end
