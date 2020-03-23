@@ -72,8 +72,10 @@ end
 
 while true do
   local up = math.floor(computer.uptime() - start)
-  local m, s = math.modf(up, 60)
-  local h, m = math.modf(m, 60)
+  local m = math.floor(up / 60)
+  local s = up - m * 60
+  local h = math.floor(m / 60)
+  m = m - h * 60
   gpu.setBackground(0x131313)
   gpu.setForeground(0x7878fa)
   gpu.fill(1, 1, sw, 1, " ")
