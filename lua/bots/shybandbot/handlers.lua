@@ -50,18 +50,18 @@ function handlers.command(addr, sender, cmd, params)
         local rdy = math.floor(dy * 10) / 10
         table.insert(result, string.format(fmt, name, rdist3d, rdist2d, rdy))
       end
-      if dbg.getWorld().getDimensionName() ~= my_world.getDimensionName() then
-        table.insert(result, 'srv@' .. dbg.address:sub(0, 8) .. ' in other dimension')
-      else
-        local ox, oy, oz = dbg.getX(), dbg.getY(), dbg.getZ()
-        local dx, dy, dz = mx - ox, oy - my, mz - oz
-        local dist3d = math.sqrt(math.pow(dx, 2) + math.pow(dy, 2) + math.pow(dz, 2))
-        local dist2d = math.sqrt(math.pow(dx, 2) + math.pow(dz, 2))
-        local rdist3d = math.floor(dist3d * 10) / 10
-        local rdist2d = math.floor(dist2d * 10) / 10
-        local rdy = math.floor(dy * 10) / 10
-        table.insert(result, string.format(fmt, 'srv@' .. dbg.address:sub(0, 8), rdist3d, rdist2d, rdy))
-      end
+    end
+    if dbg.getWorld().getDimensionName() ~= my_world.getDimensionName() then
+      table.insert(result, 'srv@' .. dbg.address:sub(0, 8) .. ' in other dimension')
+    else
+      local ox, oy, oz = dbg.getX(), dbg.getY(), dbg.getZ()
+      local dx, dy, dz = mx - ox, oy - my, mz - oz
+      local dist3d = math.sqrt(math.pow(dx, 2) + math.pow(dy, 2) + math.pow(dz, 2))
+      local dist2d = math.sqrt(math.pow(dx, 2) + math.pow(dz, 2))
+      local rdist3d = math.floor(dist3d * 10) / 10
+      local rdist2d = math.floor(dist2d * 10) / 10
+      local rdy = math.floor(dy * 10) / 10
+      table.insert(result, string.format(fmt, 'srv@' .. dbg.address:sub(0, 8), rdist3d, rdist2d, rdy))
     end
     return result
   elseif cmd == 'give' then
