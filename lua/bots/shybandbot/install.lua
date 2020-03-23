@@ -1,4 +1,5 @@
 local com = require('component')
+local fs = require('filesystem')
 local inet = com.internet
 local base_url = 'https://raw.githubusercontent.com/undefinedvalue0103/stuff/master/lua/bots/shybandbot/'
 
@@ -10,6 +11,7 @@ local files = {
 }
 
 local function download(url, name)
+  fs.remove(name)
   fd = io.open(name, "w")
   rq = inet.request(url)
   io.stdout:write("Loading " .. name .. " ... ")

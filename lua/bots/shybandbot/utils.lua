@@ -1,7 +1,8 @@
 local utils = {}
 local unicode = require('unicode')
-local gpu = require('component').gpu
-local dbg = require('component').debug
+local com = require('component')
+local gpu = com.gpu
+local dbg = com.debug
 
 local cmap = {
   [31] = {0, 0xff0000},
