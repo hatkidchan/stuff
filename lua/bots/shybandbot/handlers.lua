@@ -113,30 +113,31 @@ function handlers.command(addr, sender, cmd, params)
     local w = me.getWorld()
     local x, y, z = me.getPosition()
     x, y, z = math.floor(x), math.floor(y), math.floor(z)
-    local dir = table.remove(params, 1)
+    local dir = table.remove(params, 1) or 'x'
     local d = tonumber(table.remove(params, 1) or 1)
+    local sd = d > 0 and 1 or -1
     if dir == 'x' then
-      w.setBlocks(x, y - 2, z + 2, x + d, y - 2, z + 2, 'concrete', 15, '')
-      w.setBlocks(x, y - 2, z - 1, x + d, y - 2, z + 1, 'sea_lantern', 0, '')
-      w.setBlocks(x, y - 2, z + 0, x + d, y - 2, z + 0, 'redstone_block', 0, '')
+      w.setBlocks(x + sd, y - 2, z + 2, x + d, y - 2, z + 2, 'concrete', 15, '')
+      w.setBlocks(x + sd, y - 2, z - 1, x + d, y - 2, z + 1, 'sea_lantern', 0, '')
+      w.setBlocks(x + sd, y - 2, z + 0, x + d, y - 2, z + 0, 'redstone_block', 0, '')
 
-      w.setBlocks(x, y - 1, z - 2, x + d, y + 2, z + 2, 'concrete', 7, '')
-      w.setBlocks(x, y + 2, z - 2, x + d, y + 2, z - 2, 'concrete', 15, '')
-      w.setBlocks(x, y + 2, z + 2, x + d, y + 2, z + 2, 'concrete', 15, '')
+      w.setBlocks(x + sd, y - 1, z - 2, x + d, y + 2, z + 2, 'concrete', 7, '')
+      w.setBlocks(x + sd, y + 2, z - 2, x + d, y + 2, z - 2, 'concrete', 15, '')
+      w.setBlocks(x + sd, y + 2, z + 2, x + d, y + 2, z + 2, 'concrete', 15, '')
 
-      w.setBlocks(x, y - 1, z - 1, x + d, y + 1, z + 1, 'air', 0, '')
-      w.setBlocks(x, y - 1, z + 0, x + d, y - 1, z + 0, 'golden_rail', 0, '')
+      w.setBlocks(x + sd, y - 1, z - 1, x + d, y + 1, z + 1, 'air', 0, '')
+      w.setBlocks(x + sd, y - 1, z + 0, x + d, y - 1, z + 0, 'golden_rail', 0, '')
     elseif dir == 'z' then
-      w.setBlocks(x - 2, y - 2, z, x + 2, y - 2, z + d, 'concrete', 15, '')
-      w.setBlocks(x - 1, y - 2, z, x + 1, y - 2, z + d, 'sea_lantern', 0, '')
-      w.setBlocks(x - 0, y - 2, z, x - 0, y - 2, z + d, 'redstone_block', 0, '')
+      w.setBlocks(x - 2, y - 2, z + sd, x + 2, y - 2, z + d, 'concrete', 15, '')
+      w.setBlocks(x - 1, y - 2, z + sd, x + 1, y - 2, z + d, 'sea_lantern', 0, '')
+      w.setBlocks(x - 0, y - 2, z + sd, x - 0, y - 2, z + d, 'redstone_block', 0, '')
 
-      w.setBlocks(x - 2, y - 1, z, x + 2, y + 2, z + d, 'concrete', 7, '')
-      w.setBlocks(x - 2, y + 2, z, x - 2, y + 2, z + d, 'concrete', 15, '')
-      w.setBlocks(x + 2, y + 2, z, x + 2, y + 2, z + d, 'concrete', 15, '')
+      w.setBlocks(x - 2, y - 1, z + sd, x + 2, y + 2, z + d, 'concrete', 7, '')
+      w.setBlocks(x - 2, y + 2, z + sd, x - 2, y + 2, z + d, 'concrete', 15, '')
+      w.setBlocks(x + 2, y + 2, z + sd, x + 2, y + 2, z + d, 'concrete', 15, '')
       
-      w.setBlocks(x - 1, y - 1, z, x + 1, y + 1, z + d, 'air', 0, '')
-      w.setBlocks(x - 0, y - 1, z, x - 0, y - 1, z + d, 'golden_rail', 0, '')
+      w.setBlocks(x - 1, y - 1, z + sd, x + 1, y + 1, z + d, 'air', 0, '')
+      w.setBlocks(x - 0, y - 1, z + sd, x - 0, y - 1, z + d, 'golden_rail', 0, '')
     else
       return 'unsupported direction'
     end
