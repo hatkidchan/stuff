@@ -3,6 +3,7 @@ local pc = require("computer")
 local ev = require('event')
 local utils = require('utils')
 local handlers = require('handlers')
+local box = com.getPrimary('chat_box')
 
 THRESHOLD_TS = 1
 DISABLE_THROTTLING = true
@@ -13,18 +14,16 @@ IGNORE_GL = true
 local function handle_event(etype, addr, params)
   if etype == 'component_added' then
     utils.printf('\x1b[31m[COM] \x1b[32m+ %s\x1b[33m -> \x1b[34m%s\n', addr, params[1])
-    pc.beep(2000, 0.1)
-    pc.beep(2000, 0.1)
+    pc.beep(2000, 0.01)
   elseif etype == 'component_removed' then
     utils.printf('\x1b[31m[COM] \x1b[31m- %s\x1b[33m -> \x1b[34m%s\n', addr, params[1])
-    pc.beep(2000, 0.1)
-    pc.beep(1000, 0.1)
+    pc.beep(1000, 0.01)
   end
 end
 
 local function handle_chat_message(addr, sender, message)
   local box = com.proxy(addr)
-  utils.printf('\x1b[31m[MSG] \x1b[35m%s\x1b[33m%\x1b[32m%s\x1b[33m: \x1b[34m%s\n', addr:sub(0, 8), sender, message)
+  utils.printf('\x1b[31m[MSG] \x1b[35m%s\x1b[33m%%\x1b[32m%s\x1b[33m: \x1b[34m%s\n', addr:sub(0, 8), sender, message)
   local succ, result
   if message:sub(0, 1) == MESSAGE_PREFIX then
     local params = utils.ssplit(message:sub(2), ' ')
@@ -66,14 +65,16 @@ while true do
     if IGNORE_GL and message:sub(0, 1) == '!' then message = message:sub(2) end
     local succ, resp = pcall(handle_chat_message, addr, sender, message)  -- TODO: implement dublicates detection
     if not succ then
-      local box = com.proxy(addr)
       box.setName('ERROR')
       box.say(tostring(resp), math.huge)
+      utils.printf('\x1b[31m[ERR] \x1b[33m%s\n', resp)
     end
   else
     local succ, result = pcall(handle_event, etype, addr, e)
     if not succ then
-      l_p('\x1b[31m[ERR] \x1b[33m' .. tostring(result) .. '\n')
+      box.setName('ERROR')
+      box.say(tostring(result), math.huge)
+      utils.printf('\x1b[31m[ERR] \x1b[33m\n', result)
     end
   end
 end
