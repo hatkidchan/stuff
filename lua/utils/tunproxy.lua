@@ -76,8 +76,8 @@ while true do
   local s = up - m * 60
   local h = math.floor(m / 60)
   m = m - h * 60
-  gpu.setBackground(0x131313)
-  gpu.setForeground(0x7878fa)
+  gpu.setBackground(0xffffff)
+  gpu.setForeground(0x000000)
   gpu.fill(1, 1, sw, 1, " ")
   gpu.set(1, 1, string.format("net: %05d tun: %05d | up: %05d:%2d:%2d", packets.net, packets.tun, h, m, s))
   gpu.setBackground(0x000000)
