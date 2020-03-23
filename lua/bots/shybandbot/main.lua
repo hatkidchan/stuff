@@ -35,9 +35,8 @@ local function handle_chat_message(addr, sender, message)
     succ, result = pcall(handlers.message, addr, sender, message)
   end
   if not succ then
-    box.setName('ERROR')
-    box.say(tostring(result), math.huge)
-    utils.printf('\x1b[31m[ERR] \x1b[33m%s\n', result)
+    utils.chat_trace()
+    utils.traceback()
     return
   end
   if not result then return end
@@ -65,16 +64,14 @@ while true do
     if IGNORE_GL and message:sub(0, 1) == '!' then message = message:sub(2) end
     local succ, resp = pcall(handle_chat_message, addr, sender, message)  -- TODO: implement dublicates detection
     if not succ then
-      box.setName('ERROR')
-      box.say(tostring(resp), math.huge)
-      utils.printf('\x1b[31m[ERR] \x1b[33m%s\n', resp)
+      utils.chat_trace()
+      utils.traceback()
     end
   else
     local succ, result = pcall(handle_event, etype, addr, e)
     if not succ then
-      box.setName('ERROR')
-      box.say(tostring(result), math.huge)
-      utils.printf('\x1b[31m[ERR] \x1b[33m\n', result)
+      utils.chat_trace()
+      utils.traceback()
     end
   end
 end
