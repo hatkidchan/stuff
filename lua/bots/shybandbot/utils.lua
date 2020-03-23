@@ -85,15 +85,17 @@ function utils.ssplit(inputstr, sep)
   return t
 end
 
-function utils.traceback()
+function utils.traceback(err)
+  utils.printf('\x1b[31m[ERR] \x1b[33m%s\n', err or 'Stack trace:')
   for i, line in ipairs(utils.ssplit(debug.traceback(), '\n')) do
     utils.printf('\x1b[31m[ERR] \x1b[33m%d: \x1b[31m%s\n', i, line)
   end
 end
 
-function utils.chat_trace()
+function utils.chat_trace(err)
   local cb = require('component').getPrimary('chat_box')
   cb.setName('ERROR')
+  cb.say(err or 'Stack trace:')
   for i, line in ipairs(utils.ssplit(debug.traceback(), '\n')) do
     cb.say(line, math.huge)
   end

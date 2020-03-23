@@ -35,8 +35,8 @@ local function handle_chat_message(addr, sender, message)
     succ, result = pcall(handlers.message, addr, sender, message)
   end
   if not succ then
-    utils.chat_trace()
-    utils.traceback()
+    utils.chat_trace(result)
+    utils.traceback(result)
     return
   end
   if not result then return end
@@ -64,14 +64,14 @@ while true do
     if IGNORE_GL and message:sub(0, 1) == '!' then message = message:sub(2) end
     local succ, resp = pcall(handle_chat_message, addr, sender, message)  -- TODO: implement dublicates detection
     if not succ then
-      utils.chat_trace()
-      utils.traceback()
+      utils.chat_trace(resp)
+      utils.traceback(resp)
     end
   else
     local succ, result = pcall(handle_event, etype, addr, e)
     if not succ then
-      utils.chat_trace()
-      utils.traceback()
+      utils.chat_trace(result)
+      utils.traceback(result)
     end
   end
 end
