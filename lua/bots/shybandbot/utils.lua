@@ -1,6 +1,7 @@
 local utils = {}
 local unicode = require('unicode')
 local com = require('component')
+local json = require('json')
 local gpu = com.gpu
 local dbg = com.debug
 
@@ -108,6 +109,43 @@ function utils.init_box(addr)
   cbox.setName(BOX_NAME)
   local dist = cbox.setDistance(math.huge)
   utils.printf('\x1b[31m[INF] \x1b[32mBox \x1b[35m%s\x1b[32m initialized with name \x1b[34m%s \x1b[32mand distance \x1b[33m%d\n', addr:sub(0, 8), BOX_NAME, dist)
+end
+
+-- https://github.com/daurnimator/lua-http/blob/master/http/util.lua
+-- with little modifications
+local function char_to_pchar(c)
+  return string.format('%%%02X', c:byte(1,1))
+end
+
+local function encodeURIComponent(str)
+  return (str:gsub('[^%w%-_%.%!%~%*%\'%(%)]', char_to_pchar))
+end
+
+local function dict_to_query(form)
+  local r = {}
+  for name, value in pairs(form) do
+    table.insert(encodeURIComponent(name)..'='..encodeURIComponent(value))
+  end
+  return table.concat(r, '&')
+end
+
+function utils.http_get(addr, params, headers)
+  local s, handle = com.getPrimary('internet').request(addr .. '?' .. dict_to_query(params or {}), nil, headers)
+  if not s then return nil, handle end -- failed to open connection
+  local code, message, headers = handle.response()
+  local response = ''
+  while true do
+    local chunk = handle.read(math.huge)
+    if not chunk then break end
+    response = response .. chunk
+  end
+  return response, code, message, headers
+end
+
+function utils.json_get(addr, params, headers)
+  local response, code, message, headers = utils.http_get(addr, params)
+  if not response then return nil, code end
+  return json:decode(response), code, message, headers
 end
 
 return utils

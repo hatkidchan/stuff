@@ -8,6 +8,7 @@ local files = {
     ["utils.lua"] = base_url .. "utils.lua",
     ["privileges.lua"] = base_url .. "privileges.lua",
     ["handlers.lua"] = base_url .. "handlers.lua",
+    ["/lib/json.lua"] = 'https://raw.githubusercontent.com/sziberov/OpenComputers/master/lib/json.lua'
 }
 
 local function download(url, name)

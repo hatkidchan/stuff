@@ -119,7 +119,8 @@ function handlers.command(addr, sender, cmd, params)
     local x, y, z = me.getPosition()
     x, y, z = math.floor(x), math.floor(y), math.floor(z)
     local blk = params[1] or 'grass'
-    me.getWorld().setBlocks(x - 2, y - 1, z - 2, x + 2, y - 1, z + 2, blk, 0, '')
+    local meta = tonumber(params[2] or 0)
+    me.getWorld().setBlocks(x - 2, y - 1, z - 2, x + 2, y - 1, z + 2, blk, meta, '')
   elseif cmd == 'road' then
     if not privs.is_priv(sender) then return 'Not allowed' end
     local me = dbg.getPlayer(sender)
@@ -153,6 +154,18 @@ function handlers.command(addr, sender, cmd, params)
       w.setBlocks(x - 0, y - 1, z + sd, x - 0, y - 1, z + d, 'golden_rail', 0, '')
     else
       return 'unsupported direction'
+    end
+  elseif cmd == 'dewave' then
+    local response, code = utils.json_get('https://api.dewave.ru/radio/info')
+    if not response then return tostring(code) end
+    if response['error'] then
+      return 'API returned an error: ' .. response['error']
+    else
+      return {
+        'Currently playing on DeWave:',
+        response.response.track,
+        'Listeners: ' .. response.response.listeners.now .. ' (peak: ' .. response.response.listeners.peak .. ')'
+      }
     end
   else
     -- invalid command
