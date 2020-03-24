@@ -167,6 +167,17 @@ function handlers.command(addr, sender, cmd, params)
         'Listeners: ' .. response.response.listeners.now .. ' (peak: ' .. response.response.listeners.peak .. ')'
       }
     end
+  elseif cmd == 'sradio' then
+    local response, code = utils.json_get('http://shyband.serv.host/radio/stream.php', {get='trackname'})
+    if not response then return tostring(code) end
+    if not response.response then
+      return 'API returned an error: ' .. tostring(response)
+    else
+      return {
+        'Currently playing on Radio:',
+        response.response,
+      }
+    end
   else
     -- invalid command
     return nil
