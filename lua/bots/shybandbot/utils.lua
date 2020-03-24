@@ -130,8 +130,8 @@ local function dict_to_query(form)
 end
 
 function utils.http_get(addr, params, headers)
-  local s, handle = com.getPrimary('internet').request(addr .. '?' .. dict_to_query(params or {}), nil, headers)
-  if not s then return nil, handle end -- failed to open connection
+  local handle, err = com.getPrimary('internet').request(addr .. '?' .. dict_to_query(params or {}), nil, headers)
+  if not handle then return nil, err end -- failed to open connection
   local code, message, headers = handle.response()
   local response = ''
   while true do
