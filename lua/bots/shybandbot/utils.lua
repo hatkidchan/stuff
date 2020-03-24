@@ -124,7 +124,7 @@ end
 local function dict_to_query(form)
   local r = {}
   for name, value in pairs(form) do
-    table.insert(encodeURIComponent(name)..'='..encodeURIComponent(value))
+    table.insert(r, encodeURIComponent(name)..'='..encodeURIComponent(value))
   end
   return table.concat(r, '&')
 end
