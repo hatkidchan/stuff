@@ -2,55 +2,12 @@ local utils = {}
 local unicode = require('unicode')
 local com = require('component')
 local json = require('json')
-local gpu = com.gpu
 local dbg = com.debug
 
-local cmap = {
-  [31] = {0, 0xff0000},
-  [32] = {0, 0x00ff00},
-  [33] = {0, 0xffff00},
-  [34] = {0, 0x0000ff},
-  [35] = {0, 0xff00ff},
-  [36] = {0, 0x00ffff},
-  [37] = {0, 0x787878},
-
-  [91] = {0, 0xff7878},
-  [92] = {0, 0x78ff78},
-  [93] = {0, 0xffff78},
-  [94] = {0, 0x7878ff},
-  [95] = {0, 0xff78ff},
-  [96] = {0, 0x78ffff},
-  [97] = {0, 0xaaaaaa},
-}
 
 function utils.printf(format, ...)
   local text = string.format(format, ...)
-  local function next()
-    ch = unicode.sub(text, 0, 1)
-    text = unicode.sub(text, 2)
-    return ch
-  end
-  while text ~= '' do
-    ch = next()
-    if ch == '\x1b' then
-      if next() ~= '[' then error('peck') end
-      local val = ''
-      while true do
-        ch = next()
-        if ch == 'm' then break end
-        val = val .. ch
-      end
-      local num = tonumber(val)
-      if cmap[num] ~= nil then
-        if cmap[num][1] == 0 then gpu.setForeground(cmap[num][2]) end
-        if cmap[num][1] == 1 then gpu.setBackground(cmap[num][2]) end
-      else
-        gpu.setBackground(0x0); gpu.setForeground(0xffffff)
-      end
-    else
-      io.stdout:write(ch)
-    end
-  end
+  io.stdout:write(text)
 end
 
 
