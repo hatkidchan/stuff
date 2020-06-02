@@ -87,7 +87,8 @@ class SplinesRenderer(BaseGame):
         start = time()
         if len(spline) > 1:
             self.draw.lines(SPLINE_COLOR, spline,
-                            width=int(2 * self.scale), closed=self.looped)
+                            width=max(1, int(2 * self.scale)),
+                            closed=self.looped)
         self.debug['Render'] = f'{time() - start:7.5f}s'
 
         mwpos = Vector2(self.screen_to_world(*mouse.get_pos()))
@@ -150,7 +151,8 @@ class SplinesRenderer(BaseGame):
             elif event.key == K_l:
                 self.looped = not self.looped
             elif event.key == K_i:
-                self.points.append(Vector2(self.screen_to_world(*mouse.get_pos())))
+                pos = Vector2(self.screen_to_world(*mouse.get_pos()))
+                self.points.append(pos)
             elif event.key == K_UP:
                 self.move_delta['y'] = -100
             elif event.key == K_DOWN:
