@@ -1,7 +1,7 @@
 #!/bin/bash
 # I think getopts is a little overkill for this small script..
 # Created by @hatkidchan
-# https://github.com/hatkidchan/stuff/bash/tree/master/addwebuser.sh
+# https://github.com/hatkidchan/stuff/tree/master/bash/addwebuser.sh
 
 usage() {
     echo "Usage: $0 [-h] [-u <username>] [-p password] [-b base]  [-f mode:path]
