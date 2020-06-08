@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="floating.css">
+    <script src="floating.js"></script>
+</head>
+<body>
+    <div id="wrap">
+        <h2>Try to move window by dragging title</h2>
+        <div class="window" id="demo">
+            <div class="window-title">Lmao what</div>
+            <div class="window-content">
+                JS goes brr~
+            </div>
+        </div>
+    </div>
+    <script>
+        const window_elem = document.querySelector('#demo');
+        const floating_window = new FloatingWindow(window_elem, 200, 150);
+        floating_window.setPos(50, 50);
+    </script>
+</body>
+</html>

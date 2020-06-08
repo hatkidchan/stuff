@@ -1,0 +1,54 @@
+.window {
+    position: absolute;
+    backdrop-filter: blur(5px);
+}
+
+.window-title {
+    width: 100%;
+    height: 20px;
+    background: #262626;
+    color: #D5C4A1;
+    /* border-top-left-radius: 5px;
+    border-top-right-radius: 5px; 
+    box-shadow: 0px 0px 5px black; */
+    padding-left: 2px;
+    font: 16px monospace;
+    box-sizing: border-box;
+}
+
+/*
+ * Button for closing
+.window-title > div {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    border-radius: 50%;
+    background: #fa7878;
+    margin-right: 8px;
+}
+
+.window-title > div:hover {
+    background: #fa5656;
+}
+*/
+
+.window[data-closed=true] {
+    height: 20px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.window[data-closed=true] .window-content {
+    display: none !important;
+}
+
+.window-content {
+    overflow: hidden;
+    background: #afafaf7f;
+    color: #131313;
+    border-left: 1px solid #1313137f;
+    border-right: 1px solid #1313137f;
+    border-bottom: 1px solid #1313137f;
+    box-sizing: border-box;
+}
+
