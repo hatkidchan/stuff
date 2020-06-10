@@ -61,8 +61,11 @@ while [[ "$password" == "" ]]; do
     read -sp "Password: " password;
 done;
 
-useradd "$username" -p "$password" -b "$homepath" -mUs /bin/false \
+useradd "$username" -b "$homepath" -mUs /bin/false \
     || fail "Failed to create user";
+
+printf "$password\n$password" | passwd "$username" >/dev/null 2>&1 \
+    || fail "Failed to set password"; # meh
 
 for path in "${!folders[@]}"; do
     mkdir -pm "${folders[$path]}" "$homepath/$username/$path";
