@@ -4,13 +4,13 @@ from sys import argv, stdout
 
 
 # Enable truecolor
-TRUECOLOR = True
+TRUECOLOR = False
 
 # maximum colors per channel
-TRUECOLOR_GRADES = 128
+TRUECOLOR_GRADES = 255
 
 # from 0 to ~443.4, values above 32 are NOT recommended
-TRUECOLOR_SAME_THRESHOLD = 10
+TRUECOLOR_SAME_THRESHOLD = 0
 
 # values bellow are transparen. tnot implemented yet.
 ALPHA_THRESHOLD = 50
@@ -29,6 +29,9 @@ TCOLOR_BG = '\x1b[48;2;%d;%d;%dm'
 
 def rgb2vt100(r, g, b):
     vr, vg, vb = r // 42, g // 42, b // 42
+    vr = min(5, vr)
+    vg = min(5, vg)
+    vb = min(5, vb)
     return 16 + vr * 36 + vg * 6 + vb
 
 
