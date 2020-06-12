@@ -9,7 +9,7 @@ TRUECOLOR = True
 # maximum colors per channel
 TRUECOLOR_GRADES = 128
 
-# from 0 to (256 ** 3), values above 32 are NOT recommended
+# from 0 to ~443.4, values above 32 are NOT recommended
 TRUECOLOR_SAME_THRESHOLD = 10
 
 # values bellow are transparen. tnot implemented yet.
