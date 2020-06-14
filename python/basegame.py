@@ -31,59 +31,76 @@ class TSurface(pygame.Surface):
     pass
 
 
-class GameDraw:
-    def __init__(self, game):
-        self._game = game
+class Draw:
+    def __init__(self, surface):
+        self.surface = surface
+        self.offset = Vector2(0, 0)
+        self.scale = 1
+
+    def world_to_screen(self, wx, wy):
+        return ((wx - self.offset.x) * self.scale,
+                (wy - self.offset.y) * self.scale)
+
+    def screen_to_world(self, sx, sy):
+        return ((sx / self.scale) + self.offset.x,
+                (sy / self.scale) + self.offset.y)
+
+    def zoom_around(self, wx, wy, factor=0):
+        owmx, owmy = self.screen_to_world(wx, wy)
+        self.scale *= (1 + factor)
+        nwmx, nwmy = self.screen_to_world(wx, wy)
+        self.offset.x += (owmx - nwmx)
+        self.offset.y += (owmy - nwmy)
 
     def _vec2_to_screen(self, vec2):
         vec2 = Vector2(vec2)
-        x, y = map(int, self._game.world_to_screen(vec2.x, vec2.y))
+        x, y = map(int, self.world_to_screen(vec2.x, vec2.y))
         return x, y
 
     def _rect_to_screen(self, rect):
         rect = Rect(rect)
-        scale = self._game.scale
-        x, y = map(int, self._game.world_to_screen(rect.x, rect.y))
+        scale = self.scale
+        x, y = map(int, self.world_to_screen(rect.x, rect.y))
         w, h = map(int, [rect.width * scale, rect.height * scale])
         return Rect(x, y, w, h)
 
     def rect(self, color, rect, width=0, border_radius=0, screen=False):
         rect = rect if screen else self._rect_to_screen(rect)
-        return draw.rect(self._game.surface, color, rect, width)
+        return draw.rect(self.surface, color, rect, width)
 
     def polygon(self, color, points, width=0, screen=False):
         points = points if screen else list(map(self._vec2_to_screen, points))
-        return draw.rect(self._game.surface, color, points, width)
+        return draw.rect(self.surface, color, points, width)
         
     def circle(self, color, center, radius, width=0, screen=False):
         center = center if screen else self._vec2_to_screen(center)
-        return draw.circle(self._game.surface, color, center, radius, width)
+        return draw.circle(self.surface, color, center, radius, width)
         
     def ellipse(self, color, rect, width=0, screen=False):
         rect = rect if screen else self._rect_to_screen(rect)
-        return draw.ellipse(self._game.surface, color, rect, width)
+        return draw.ellipse(self.surface, color, rect, width)
         
     def arc(self, color, rect, start, stop, width=1, screen=False):
         rect = rect if screen else self._rect_to_screen(rect)
-        return draw.arc(self._game.surface, color, rect, start, stop, width)
+        return draw.arc(self.surface, color, rect, start, stop, width)
         
     def line(self, color, start, end, width=1, screen=False):
         start = start if screen else self._vec2_to_screen(start)
         end = end if screen else self._vec2_to_screen(end)
-        return draw.line(self._game.surface, color, start, end, width)
+        return draw.line(self.surface, color, start, end, width)
 
     def lines(self, color, points, closed=False, width=1, screen=False):
         points = points if screen else list(map(self._vec2_to_screen, points))
-        return draw.lines(self._game.surface, color, closed, points, width)
+        return draw.lines(self.surface, color, closed, points, width)
 
     def aaline(self, color, start, end, width=1, screen=False):
         start = start if screen else self._vec2_to_screen(start)
         end = end if screen else self._vec2_to_screen(end)
-        return draw.aaline(self._game.surface, color, start, end, width)
+        return draw.aaline(self.surface, color, start, end, width)
 
     def aalines(self, color, points, closed=False, width=1, screen=False):
         points = points if screen else list(map(self._vec2_to_screen, points))
-        return draw.aalines(self._game.surface, color, closed, points, width)
+        return draw.aalines(self.surface, color, closed, points, width)
 
 
 class BaseGame():
@@ -105,10 +122,6 @@ class BaseGame():
         self.__lock = False
         self._n_frames = 0
         setattr(self.surface, '_GAME', self)
-        self.scale = 1
-        self.offset_x = 0
-        self.offset_y = 0
-        self.draw = GameDraw(self)
         self.ready()
 
     def mainloop(self):
@@ -154,12 +167,12 @@ class BaseGame():
             self._n_frames += 1
     
     def ready(self):
-        pass
+        self.draw = Draw(self.surface)
 
     def frame(self, delta):
         draw.rect(self.surface, RED, self.surface.get_rect())
         self.draw.line(BLACK, Vector2(0, 0),
-                       Vector2(self.screen_to_world(*mouse.get_pos())))
+                       Vector2(self.draw.screen_to_world(*mouse.get_pos())))
 
     def event_handler(self, event):
         print(event.type, event)
@@ -167,21 +180,6 @@ class BaseGame():
     def stop(self):
         self.__stop = True
         
-    def world_to_screen(self, wx, wy):
-        return ((wx - self.offset_x) * self.scale,
-                (wy - self.offset_y) * self.scale)
-
-    def screen_to_world(self, sx, sy):
-        return ((sx / self.scale) + self.offset_x,
-                (sy / self.scale) + self.offset_y)
-            
-    def zoom_around(self, mx, my, factor):
-        owmx, owmy = self.screen_to_world(mx, my)
-        self.scale *= (1 + factor)
-        nwmx, nwmy = self.screen_to_world(mx, my)
-        self.offset_x += (owmx - nwmx)
-        self.offset_y += (owmy - nwmy)
-
     def draw_error(self, e, block='<unknown>'):
         draw.rect(self.surface_d, Color('#131313'), self.surface_d.get_rect())
         lines = []

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Spline renderer based on oneLoneCoder's video:
 # http://www.youtube.com/watch?v=9_aJGUTePYo
-from basegame import BaseGame
+from basegame import BaseGame, Draw
 from pygame.math import *
 from math import *
 from time import time
@@ -37,6 +37,7 @@ class SplinesRenderer(BaseGame):
         self.spline_step = 0.1
         self.spline_step_delta = 0
         self.move_delta = {'x': 0, 'y': 0}
+        self.draw = Draw(self.surface)
         
     @classmethod
     def get_spline_point(cls, p, t=0, looped=False):
@@ -67,8 +68,8 @@ class SplinesRenderer(BaseGame):
         return Vector2(tx, ty)
     
     def frame(self, delta):
-        self.offset_x += self.move_delta['x'] * delta
-        self.offset_y += self.move_delta['y'] * delta
+        self.draw.offset.x += self.move_delta['x'] * delta
+        self.draw.offset.y += self.move_delta['y'] * delta
         
         if self.spline_step_delta != 0:
             self.spline_step *= (1 + self.spline_step_delta * delta)
@@ -87,39 +88,40 @@ class SplinesRenderer(BaseGame):
         start = time()
         if len(spline) > 1:
             self.draw.lines(SPLINE_COLOR, spline,
-                            width=max(1, int(2 * self.scale)),
+                            width=max(1, int(2 * self.draw.scale)),
                             closed=self.looped)
         self.debug['Render'] = f'{time() - start:7.5f}s'
 
-        mwpos = Vector2(self.screen_to_world(*mouse.get_pos()))
+        mwpos = Vector2(self.draw.screen_to_world(*mouse.get_pos()))
         for point in self.points:
             near = mwpos.distance_to(point) < 5
             color = SPLINE_CONTROLPOINT_SEL if near else SPLINE_CONTROLPOINT
-            self.draw.circle(color, point, max(int(5 * self.scale), 1), 1)
+            self.draw.circle(color, point, max(int(5 * self.draw.scale), 1), 1)
     
     def event_handler(self, event):
         if event.type == MOUSEBUTTONDOWN:
-            world_mouse_pos = Vector2(self.screen_to_world(*event.pos))
+            world_mouse_pos = Vector2(self.draw.screen_to_world(*event.pos))
             if event.button == 1:  # LMB
                 for i, p in enumerate(self.points):
                     if p.distance_to(world_mouse_pos) < 5:
                         self.dragging_point = i
                         break
                 else:
-                    self.panning = (event.pos, (self.offset_x, self.offset_y))
+                    self.panning = (event.pos,
+                                    (self.draw.offset.x, self.draw.offset.y))
             elif event.button == 2:  # MMB
                 for i, p in enumerate(self.points):
-                    if p.distance_to(world_mouse_pos) < 5 / self.scale:
+                    if p.distance_to(world_mouse_pos) < 5 / self.draw.scale:
                         self.points.pop(i)
                         break
             elif event.button == 3:  # RMB
                 self.points.append(world_mouse_pos)
             elif event.button == 4:
-                self.zoom_around(*event.pos, 0.1)
-                self.debug['Zoom'] = f'x{self.scale:7.5f}'
+                self.draw.zoom_around(*event.pos, 0.1)
+                self.debug['Zoom'] = f'x{self.draw.scale:7.5f}'
             elif event.button == 5:
-                self.zoom_around(*event.pos, -0.1)
-                self.debug['Zoom'] = f'x{self.scale:7.5f}'
+                self.draw.zoom_around(*event.pos, -0.1)
+                self.debug['Zoom'] = f'x{self.draw.scale:7.5f}'
             else:
                 print('UNHANDLED', event)
 
@@ -133,13 +135,13 @@ class SplinesRenderer(BaseGame):
 
         elif event.type == MOUSEMOTION:
             if self.dragging_point is not None:
-                world_mouse_pos = Vector2(self.screen_to_world(*event.pos))
+                world_mouse_pos = Vector2(self.draw.screen_to_world(*event.pos))
                 self.points[self.dragging_point] = world_mouse_pos
             elif self.panning is not None:
                 mdx = self.panning[0][0] - event.pos[0]
                 mdy = self.panning[0][1] - event.pos[1]
-                self.offset_x = self.panning[1][0] + mdx / self.scale
-                self.offset_y = self.panning[1][1] + mdy / self.scale
+                self.draw.offset.x = self.panning[1][0] + mdx / self.draw.scale
+                self.draw.offset.y = self.panning[1][1] + mdy / self.draw.scale
             else:
                 print('UNHANDLED', event)
 
@@ -151,7 +153,7 @@ class SplinesRenderer(BaseGame):
             elif event.key == K_l:
                 self.looped = not self.looped
             elif event.key == K_i:
-                pos = Vector2(self.screen_to_world(*mouse.get_pos()))
+                pos = Vector2(self.draw.screen_to_world(*mouse.get_pos()))
                 self.points.append(pos)
             elif event.key == K_UP:
                 self.move_delta['y'] = -100
