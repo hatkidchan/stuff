@@ -97,6 +97,7 @@ class SplinesRenderer(BaseGame):
             near = mwpos.distance_to(point) < 5
             color = SPLINE_CONTROLPOINT_SEL if near else SPLINE_CONTROLPOINT
             self.draw.circle(color, point, max(int(5 * self.draw.scale), 1), 1)
+        return True
     
     def event_handler(self, event):
         if event.type == MOUSEBUTTONDOWN:

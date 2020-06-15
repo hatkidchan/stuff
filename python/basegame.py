@@ -120,11 +120,13 @@ class BaseGame():
         self.debug = {}
         self.__stop = False
         self.__lock = False
+        self._debug = True
         self._n_frames = 0
         setattr(self.surface, '_GAME', self)
         self.ready()
 
     def mainloop(self):
+        redraw = True
         while not self.__stop:
             try:
                 for event in pygame.event.get():
@@ -143,13 +145,13 @@ class BaseGame():
             if not self.__lock:
                 try:
                     frame_delta = self.clock.tick(self._fps_limit) / 1000
-                    self.frame(frame_delta)
+                    redraw = self.frame(frame_delta)
                     self.__avg_fps.push(1 / frame_delta)
                 except Exception as e:
                     self.draw_error(e, 'renderer')
                     self.__lock = True
             
-            if not self.__lock:
+            if not self.__lock and self._debug:
                 self.debug['FPS'] = f'{self.__avg_fps.value():5.1f}'
 
                 draw.rect(self.surface_d, EMPTY, self.surface_d.get_rect())
@@ -161,10 +163,13 @@ class BaseGame():
                     line = self.font_d.render(f'{k}: {v}', True, color)
                     self.surface_d.blit(line, (0, i * 16))
             
+            if redraw:
                 self.__screen.blit(self.surface, (0, 0))
-            self.__screen.blit(self.surface_d, (0, 0))
-            pygame.display.flip()
-            self._n_frames += 1
+            if redraw or self.__lock:
+                if self._debug or self.__lock:
+                    self.__screen.blit(self.surface_d, (0, 0))
+                pygame.display.flip()
+                self._n_frames += 1
     
     def ready(self):
         self.draw = Draw(self.surface)
@@ -173,6 +178,7 @@ class BaseGame():
         draw.rect(self.surface, RED, self.surface.get_rect())
         self.draw.line(BLACK, Vector2(0, 0),
                        Vector2(self.draw.screen_to_world(*mouse.get_pos())))
+        return True
 
     def event_handler(self, event):
         print(event.type, event)
