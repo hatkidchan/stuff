@@ -14,28 +14,36 @@ def frange(start, end, step=1.0):
         v += step
 
 
+def hue_to_rgb(p, q, t):
+    if t < 0:
+        t += 1
+    if t > 1:
+        t -= 1
+    if t < 1 / 6:
+        return p + (q - p) * 6 * t
+    if t < 1 / 2:
+        return q
+    if t < 2 / 3:
+        return p + (q - p) * (2/3 - t) * 6
+    return p
+
+
 def hsl_to_rgb(h, s, l):
     r, g, b = 0, 0, 0
     if s == 0:
-        r = g = b = l # achromatic
+        r = g = b = l  # achromatic
     else:
-        def hue2rgb(p, q, t):
-            if t < 0: t += 1
-            if t > 1: t -= 1
-            if t < 1 / 6: return p + (q - p) * 6 * t
-            if t < 1 / 2: return q
-            if t < 2 / 3: return p + (q - p) * (2/3 - t) * 6
-            return p
         q = l * (1 + s) if l < 0.5 else l + s - l * s
         p = 2 * l - q
-        r = hue2rgb(p, q, h + 1 / 3)
-        g = hue2rgb(p, q, h)
-        b = hue2rgb(p, q, h - 1 / 3)
+        r = hue_to_rgb(p, q, h + 1 / 3)
+        g = hue_to_rgb(p, q, h)
+        b = hue_to_rgb(p, q, h - 1 / 3)
     return tuple(map(int, map(lambda v: v * 255, [r, g, b])))
 
 
 class Why90(BaseGame):
     __screen_size__ = (400, 400)
+
     def ready(self):
         self.offset = [0, 0]
         self.step = 1
@@ -64,7 +72,7 @@ class Why90(BaseGame):
             if t == 0:
                 self.draw.line(color, (200, 200), (sx, sy))
         return True
-    
+
     def event_handler(self, event):
         if event.type == MOUSEBUTTONDOWN:
             if event.button == 4:  # WHEEL_UP
@@ -86,6 +94,7 @@ class Why90(BaseGame):
                 self.offset_delta[0] = 0
             elif event.key in (K_LEFT, K_RIGHT):
                 self.offset_delta[1] = 0
+
 
 if __name__ == '__main__':
     game = Why90()
