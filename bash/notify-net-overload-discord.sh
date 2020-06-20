@@ -44,11 +44,11 @@ while sleep $INTERVAL; do
     
     [ "$delta_prx" -ge "$THRESHOLD_RX" ] \
         && [ "$THRESHOLD_RX" -gt 0 ] \
-        && notify "$(printf $MESSAGE_RX $delta_prx)";
+        && notify "$(printf "$MESSAGE_RX" $delta_prx)";
 
     [ "$delta_ptx" -ge "$THRESHOLD_TX" ] \
         && [ "$THRESHOLD_TX" -gt 0 ] \
-        && notify "$(printf $MESSAGE_TX $delta_ptx)";
+        && notify "$(printf "$MESSAGE_TX" $delta_ptx)";
 
     last_packets_rx=$packets_rx;
     last_packets_tx=$packets_tx;
