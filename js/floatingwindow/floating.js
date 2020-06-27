@@ -1,6 +1,5 @@
 function FloatingWindow(elem, width, height) {
     this.elem = elem;
-    console.log(width, height)
     this.elem.style.width = width + 'px';
     this.elem.style.height = (height + 20) + 'px';
     this.title = elem.getElementsByTagName('div')[0];
@@ -11,11 +10,16 @@ function FloatingWindow(elem, width, height) {
     this.content.style.height = height + 'px';
     this.now_dragging = false;
     this.pos = [0, 0, 0, 0];
+    var self = this;
 
-    this.title.addEventListener('mousedown', (e) => {
-        this.onDragMouseDown(e);
+    this.title.addEventListener('mousedown', function(e) {
+        self.onDragMouseDown(e);
     });
 
+    this.title.addEventListener('touchstart', function(e) {
+        self.onDragMouseDown(e.changedTouches[0], true);
+    });
+  
     /*this.titlebtn.addEventListener('click', (e) => {
         if(this.elem.dataset.closed == 'true')
             this.elem.dataset.closed = 'false';
@@ -23,41 +27,53 @@ function FloatingWindow(elem, width, height) {
             this.elem.dataset.closed = 'true';
     });*/
 
-    document.addEventListener('mouseup', (e) => {
-        if(this.is_dragging) {
-            this.closeDragElement(e);
+    document.addEventListener('mouseup', function(e) {
+        if(self.is_dragging) {
+            self.closeDragElement(e);
         }
     });
 
-    document.addEventListener('mousemove', (e) => {
-        if(this.is_dragging) {
-            this.elementDrag(e);
+    document.addEventListener('touchend', function(e) {
+        if(self.is_dragging) {
+            self.closeDragElement(e.changedTouches[0], true);
         }
     });
 
-    this.onDragMouseDown = (e) => {
-        e.preventDefault();
-        this.pos[2] = e.clientX;
-        this.pos[3] = e.clientY;
-        this.is_dragging = true;
+    document.addEventListener('mousemove', function(e) {
+        if(self.is_dragging) {
+            self.elementDrag(e);
+        }
+    });
+
+    document.addEventListener('touchmove', function(e) {
+        if(self.is_dragging) {
+            self.elementDrag(e.changedTouches[0], true);
+        }
+    });
+
+    this.onDragMouseDown = function(e, isTouch) {
+        if(!isTouch) e.preventDefault();
+        self.pos[2] = e.clientX;
+        self.pos[3] = e.clientY;
+        self.is_dragging = true;
     }
 
-    this.elementDrag = (e) => {
-        e.preventDefault();
-        this.pos[0] = this.pos[2] - e.clientX;
-        this.pos[1] = this.pos[3] - e.clientY;
-        this.pos[2] = e.clientX;
-        this.pos[3] = e.clientY;
-        this.elem.style.top = (this.elem.offsetTop - this.pos[1]) + 'px';
-        this.elem.style.left = (this.elem.offsetLeft - this.pos[0]) + 'px';
+    this.elementDrag = function(e, isTouch) {
+        if(!isTouch) e.preventDefault();
+        self.pos[0] = self.pos[2] - e.clientX;
+        self.pos[1] = self.pos[3] - e.clientY;
+        self.pos[2] = e.clientX;
+        self.pos[3] = e.clientY;
+        self.elem.style.top = (self.elem.offsetTop - self.pos[1]) + 'px';
+        self.elem.style.left = (self.elem.offsetLeft - self.pos[0]) + 'px';
     }
 
-    this.closeDragElement = (e) => {
-        this.is_dragging = false;
+    this.closeDragElement = function(e) {
+        self.is_dragging = false;
     }
 
-    this.setPos = (x, y) => {
-        this.elem.style.left = x + 'px';
-        this.elem.style.top = y + 'px';
+    this.setPos = function(x, y) {
+        self.elem.style.left = x + 'px';
+        self.elem.style.top = y + 'px';
     }
 }
