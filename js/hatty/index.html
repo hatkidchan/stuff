@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>HaTTY demo</title>
+        <meta charset="utf-8">
+        <style>
+            body { background: #131313;}
+        </style>
+        <script src="palettes.js"></script>
+        <script src="hatty.js"></script>
+    </head>
+    <body>
+        <canvas></canvas>
+        <script>
+        
+var canv = document.querySelector('canvas');
+var hatty = new HaTTY(canv, {
+    'palette': termpalettes.satori, // terminal palette
+    'font': '24px monospace', // font
+    'char_w': 15, // character width (font-specific)
+    'char_h': 30, // character height 
+    'char_x': 0,  // character offset
+    'char_y': 4,  // same as above
+    'size_x': 80, // terminal columns (in characters)
+    'size_y': 25, // terminal rows (in characters)
+});
+hatty.test().then(function() {
+    hatty.write('# by @hatkidchan');
+}); // sample test
+
+        </script>
+    </body>
+</html>
