@@ -57,8 +57,11 @@ def probe_char(img, cox, coy):
 for c in CHARS:
     PROBE_BLOCKS[c] = make_block(c)
 
+size = 160, 50
 image = Image.open(sys.argv[1]).convert('L')
-image.thumbnail((320 * BLOCKSIZE[0], 100 * BLOCKSIZE[1]))
+image.thumbnail((size[0] * BLOCKSIZE[0], size[1] * BLOCKSIZE[1]))
+ratio = (size[0] * BLOCKSIZE[0]) / image.width
+image = image.resize((int(image.width * ratio), int(image.height * ratio)))
 
 orig_size = image.size
 blocks = [a // b for a, b in zip(orig_size, BLOCKSIZE)]
