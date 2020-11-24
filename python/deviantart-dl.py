@@ -8,10 +8,11 @@ Requirements:
 from os.path import join, splitext, split as splitpath, exists
 from concurrent.futures import ThreadPoolExecutor
 from argparse import ArgumentParser
-from traceback import format_exc
-from time import sleep
-from os import mkdir, environ
 from urllib.parse import urlparse
+from traceback import format_exc
+from os import mkdir, environ
+from time import sleep
+from json import dumps
 from rich.progress import BarColumn, DownloadColumn, TransferSpeedColumn
 from rich.progress import TimeRemainingColumn, Progress
 from requests import get as GET
@@ -65,19 +66,29 @@ class DeviantArtDownloader:
         ext = splitext(urlparse(src).path)[1]
         return splitpath(item.url)[1] + ext
 
-    def download(self, tag, out_dir='.', max_items=-1, max_workers=8):
+    def download(self,
+                 tag,
+                 out_dir='.',
+                 max_items=-1,
+                 max_workers=8,
+                 list_path=None):
         if not exists(out_dir):
             mkdir(out_dir)
         with self.progress, ThreadPoolExecutor(max_workers=max_workers) as pool:
             self.progress.start_task(self.all_t)
             futures = []
             for item in self.search_content(tag, max_items):
+                if list_path:
+                    with open(list_path, 'a') as flist:
+                        flist.write(item.url + '\n')
                 filename = join(out_dir, self._make_filename(item))
                 task_id = self.progress.add_task(
                         'download',
                         filename=item.title,
                         start=0)
 
+                if not item.content:
+                    continue
                 url = item.content['src']
                 f = pool.submit(self.download_worker, task_id, url, filename)
                 futures.append(f)
@@ -93,6 +104,8 @@ if __name__ == '__main__':
     p = ArgumentParser(description=__description__)
     p.add_argument('--out-dir', dest='out_dir', default='.',
                    help='Folder to save files into')
+    p.add_argument('--out-list', dest='out_list', default='',
+                   help='File to save links into')
     p.add_argument('--client-id', dest='client_id',
                    default=environ.get('DA_CLIENT_ID'),
                    help='DeviantArt client id (defaults to $DA_CLIENT_ID)')
@@ -107,5 +120,9 @@ if __name__ == '__main__':
     args = p.parse_args()
     
     dl = DeviantArtDownloader(args.client_id, args.client_secret)
-    dl.download(args.tag, args.out_dir, args.max_items, args.max_workers)
+    dl.download(tag=args.tag,
+                out_dir=args.out_dir,
+                max_items=args.max_items,
+                max_workers=args.max_workers,
+                list_path=args.out_list or None)
 
