@@ -81,14 +81,14 @@ class DeviantArtDownloader:
                 if list_path:
                     with open(list_path, 'a') as flist:
                         flist.write(item.url + '\n')
+                if not item.content:
+                    continue
                 filename = join(out_dir, self._make_filename(item))
                 task_id = self.progress.add_task(
                         'download',
                         filename=item.title,
                         start=0)
 
-                if not item.content:
-                    continue
                 url = item.content['src']
                 f = pool.submit(self.download_worker, task_id, url, filename)
                 futures.append(f)
