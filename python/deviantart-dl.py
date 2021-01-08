@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 DeviantArt downloader by @hatkidchan
 
@@ -34,15 +34,19 @@ class DeviantArtDownloader:
             "[bold blue]{task.fields[filename]}",
         )
         self.all_t = self.progress.add_task('All', filename='All', start=0)
+        self.total_length = 0;
 
     def download_worker(self, task_id, url, path):
         with open(path, 'wb') as f, GET(url, stream=True) as rq:
             length = int(rq.headers.get('Content-Length', 0))
             self.progress.start_task(task_id)
             self.progress.update(task_id, total=length)
+            self.total_length += length
+            self.progress.update(self.all_t, total=self.total_length)
             for chunk in rq.iter_content(chunk_size=4096):
                 f.write(chunk)
                 self.progress.update(task_id, advance=len(chunk))
+                self.progress.update(self.all_t, advance=len(chunk))
         return task_id
     
     def search_content(self, tag, max_items=-1):
@@ -51,7 +55,6 @@ class DeviantArtDownloader:
         while True:
             data = self.api.browse('tags', tag=tag, offset=offset)
             for item in data['results']:
-                self.progress.update(self.all_t, total=n_items)
                 yield item
                 n_items += 1
                 if n_items > max_items and max_items > 0:
@@ -97,7 +100,6 @@ class DeviantArtDownloader:
                         if f.done():
                             futures.remove(f)
                             self.progress.remove_task(f.result())
-                            self.progress.update(self.all_t, advance=1)
                     sleep(0.1)
 
 if __name__ == '__main__':
