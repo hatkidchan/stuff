@@ -35,6 +35,8 @@ COLORFULBLK_BLOCK_TOP = '\u2580'
 COLORFULBLK_BLOCK_BOT = '\u2584'
 COLORFULBLK_BLOCK_FUL = '\u2588'
 COLORFULBLK_BLOCK_NUL = ' '
+# VT100 Color Palette
+VT100_PALETTE = range(16, 256)  # Will be mapped later
 
 ######################################################################
 #   GENERIC FUNCTIONS, REQUIRED IN MOST CONVERTERS, POORLY DONE      #
@@ -52,8 +54,7 @@ def rgb2vt100(r, g, b):
     code += int(b / 255 * 5)
     return code
 
-def vt100rgb(r, g, b):
-    code = rgb2vt100(r, g, b)
+def vt1002rgb(code):
     if code >= 232 and code <= 255:
         v = int(((code - 232) / 24) * 255)
         return v, v, v
@@ -65,6 +66,9 @@ def vt100rgb(r, g, b):
         code //= 6
         r = (code % 6) * 42
         return r, g, b
+
+def vt100rgb(r, g, b):
+    return vt1002rgb(rgb2vt100(r, g, b))
 
 def color_distance(rgb1, rgb2):
     return sum((a - b) ** 2 for a, b in zip(rgb1, rgb2)) ** 0.5
@@ -78,6 +82,8 @@ def resize_image(image, width, height, keep=False):
     return image.resize((int(image.width * ratio), int(image.height * ratio)))
 
 def bool_(v):
+    if isinstance(v, bool):
+        return v
     if str(v).lower() in ['yes', 'true', 'on']:
         return True
     if str(v).lower() in ['no', 'false', 'off']:
@@ -325,7 +331,7 @@ app = Flask(__name__)
 
 
 @app.route('/conv/trueascii', methods=['POST'])
-@form_param("bitmap", "checkbox", "Use dithering")
+@form_param("dither", "checkbox", "Use dithering")
 @form_param("enhance", "checkbox", "Pre-process alpha layer")
 @form_param("brightest", "range", "Brightness", min=0, max=10, step=.1, value=1)
 @form_param("contrast", "range", "Contrast", min=0, max=10, step=.1, value=1)
@@ -340,7 +346,7 @@ app = Flask(__name__)
 def conv_trueascii():
     if 'image' not in request.files:
         raise KeyError('no image sent')
-    bitmap = get_param('bitmap', False, bool_)
+    dither = get_param('dither', False, bool_)
     enhance = get_param('enhance', True, bool_)
     contrast = get_param('contrast', 1.5, float)
     brightness = get_param('brightness', 1.5, float)
@@ -362,9 +368,10 @@ def conv_trueascii():
                                    cols * TRUEASCII_BLOCK_SIZE[0],
                                    rows * TRUEASCII_BLOCK_SIZE[1])
     if enhance:
-        image = ImageEnhance.Brightness(image).enhance(brightness)
         image = ImageEnhance.Contrast(image).enhance(contrast)
-    image = resize_image(image.convert('1' if bitmap else 'L'), 
+        image = ImageEnhance.Brightness(image).enhance(brightness)
+    image = resize_image(image.convert('1' if dither else 'L', 
+                                       dither=int(dither)), 
                          cols * TRUEASCII_BLOCK_SIZE[0],
                          rows * TRUEASCII_BLOCK_SIZE[1])
     
@@ -391,14 +398,17 @@ def conv_trueascii():
                         c = vt100rgb(*c)
                     c = tuple(c)
                     if c != oc:
-                        if oc is not None:
+                        if oc is not None and html:
                             line += HTML_CLOSE
                         if html:
                             line += HTML_FOREGROUND % c
                         else:
                             line += SEQ_TRUECOLOR_FG % c
                         oc = c
-                line += escape(trueascii_probe_char(image, x, y, charmap))
+                if html:
+                    line += escape(trueascii_probe_char(image, x, y, charmap))
+                else:
+                    line += trueascii_probe_char(image, x, y, charmap)
             if oc is not None:
                 line += HTML_CLOSE if html else "\x1b[0m"
             yield line + '\n'
@@ -421,6 +431,7 @@ def conv_trueascii():
         max=RESULT_MAX_SIZE[1], step=1, value=RESULT_DEFAULT_SIZE[1])
 @form_param("cols", "range", "Width of line", min=RESULT_MIN_SIZE[0],
         max=RESULT_MAX_SIZE[0], step=1, value=RESULT_DEFAULT_SIZE[0])
+@form_param("dither", "checkbox", "Use dithering (in 256 and 1 colors mode)")
 def conv_charmap():
     if 'image' not in request.files:
         raise KeyError('no image sent')
@@ -430,15 +441,23 @@ def conv_charmap():
     without_container = get_param('without_container', False, bool_)
     if color not in ['no', '256', 'truecolor']:
         raise KeyError('unknown color mode, supported only no/256/truecolor')
-    image = image.convert('L' if color == 'no' else 'RGB')
     charmap = get_param('charmap', COLORFULMAP_DEFAULT_CHARSET)
     rows = get_param('rows', RESULT_DEFAULT_SIZE[1], int)
     cols = get_param('cols', RESULT_DEFAULT_SIZE[0], int)
     rows = clamp(rows, RESULT_MIN_SIZE[1], RESULT_MAX_SIZE[1])
     cols = clamp(cols, RESULT_MIN_SIZE[0], RESULT_MAX_SIZE[0])
+    dither = get_param('dither', False, bool_)
     
     image = resize_image(image, cols, rows * 2, 1)
     image = image.resize((image.width, image.height // 2))
+    
+    if color == '256':
+        image = image.convert('P', dither=int(dither), palette=VT100_PALETTE)
+        image = image.convert('RGB')
+    elif color == 'no':
+        image = image.convert('L', dither=int(dither))
+    else:
+        image = image.convert('RGB')
     
     def process():
         if html and not without_container:
@@ -483,7 +502,8 @@ def conv_charmap():
         max=RESULT_MAX_SIZE[1], step=1, value=RESULT_DEFAULT_SIZE[1])
 @form_param("cols", "range", "Width of line", min=RESULT_MIN_SIZE[0],
         max=RESULT_MAX_SIZE[0], step=1, value=RESULT_DEFAULT_SIZE[0])
-def conv_post():
+@form_param("dither", "checkbox", "Use dithering (in 256 colors mode)")
+def conv_blocks():
     if 'image' not in request.files:
         raise KeyError('no image sent')
     color = get_param('color', 'truecolor')
@@ -495,9 +515,15 @@ def conv_post():
     cols = get_param('cols', RESULT_DEFAULT_SIZE[0], int)
     rows = clamp(rows, RESULT_MIN_SIZE[1], RESULT_MAX_SIZE[1])
     cols = clamp(cols, RESULT_MIN_SIZE[0], RESULT_MAX_SIZE[0])
+    dither = get_param('dither', False, bool_)
 
     image = Image.open(request.files['image']).convert('RGBA')
     image = resize_image(image, cols, rows * 2, 1)
+    if color == '256' and dither:
+        (_, _, _, a) = image.split()
+        image = image.convert('P', dither=1, palette=VT100_PALETTE)
+        image = image.convert('RGBA')
+        image.putalpha(a)
 
     def process():
         if html and not without_container:
@@ -607,6 +633,8 @@ def docs():
                 Clamped to some numbers which I'm too lazy to write here
             cols: int
                 Same as above, but for vertical lines
+            dither: bool
+                Use dithering
         Image must be sent as file with name 'image'.
         Output text resolution may be {max_width}x{max_height} (in characters)
         Result lines are streamed.
@@ -706,6 +734,9 @@ for char in TRUEASCII_CHARS:
     TRUEASCII_BLOCKS_1[char] = trueascii_make_char_image(char, '1')
     TRUEASCII_BLOCKS_L[char] = trueascii_make_char_image(char, 'L')
 
+VT100_PALETTE = list(map(vt1002rgb, VT100_PALETTE))
+VT100_PALETTE = [ a for b in VT100_PALETTE for a in b ] # Flatten it
+VT100_PALETTE += [0] * (256 - len(VT100_PALETTE)) # Pad to size of 256 colors
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8082, debug=True)
